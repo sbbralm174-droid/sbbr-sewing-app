@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 export default function AddSewingLinePage() {
   const [name, setName] = useState('');
-  const [location, setLocation] = useState('');
+  const [floor, setfloor] = useState('');
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +28,7 @@ export default function AddSewingLinePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, location: location || undefined }), // Send undefined if location is empty
+        body: JSON.stringify({ name, floor: floor || undefined }), // Send undefined if floor is empty
       });
 
       const data = await response.json();
@@ -37,7 +37,7 @@ export default function AddSewingLinePage() {
         setIsSuccess(true);
         setMessage(data.message || 'Sewing line added successfully!');
         setName(''); // Clear input on success
-        setLocation('');
+        setfloor('');
       } else {
         setIsSuccess(false);
         setMessage(data.message || 'Failed to add sewing line. Please try again.');
@@ -70,14 +70,14 @@ export default function AddSewingLinePage() {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="location" className="block text-gray-700 text-sm font-bold mb-2">
-            Location (Optional)
+          <label htmlFor="floor" className="block text-gray-700 text-sm font-bold mb-2">
+            floor (Optional)
           </label>
           <input
             type="text"
-            id="location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            id="floor"
+            value={floor}
+            onChange={(e) => setfloor(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             placeholder="e.g., Floor A, Building 2"
           />

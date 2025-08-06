@@ -12,12 +12,14 @@ export async function POST(req: Request) {
     const {
       operatorId,
       name,
+      operatorDesigation,
       contactNumber,
       selectedMachineIds, // Array of ObjectId strings
       selectedProcessIds // Array of ObjectId strings
     }: {
       operatorId: string;
       name: string;
+      operatorDesigation: string;
       contactNumber?: string;
       selectedMachineIds: string[];
       selectedProcessIds: string[];
@@ -37,6 +39,7 @@ export async function POST(req: Request) {
     const newOperator = await Operator.create({
       operatorId,
       name,
+      operatorDesigation,
       contactNumber,
       skills: {
         machines: selectedMachineIds,
@@ -59,14 +62,29 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   await dbConnect();
-
   try {
-    // Populate the 'machines' and 'processes' fields to get their full details, not just IDs
-    const operators = await Operator.find({})
-      .populate('skills.machines')
-      .populate('skills.processes');
+    const url = new URL(req.url);
+    const searchTerm = url.searchParams.get('search');
+
+    let query: any = {};
+
+    // Only add search query if searchTerm exists
+    if (searchTerm) {
+      query = {
+        $or: [
+          { name: { $regex: searchTerm, $options: 'i' } }, // Case-insensitive search by name
+          { operatorId: { $regex: searchTerm, $options: 'i' } }, // Case-insensitive search by operatorId
+        ],
+      };
+    }
+    
+    // The .select() method has been removed to return all properties
+    const operators = await Operator.find(query)
+      .populate('skills.machines', 'name')
+      .populate('skills.processes', 'name')
+      .sort({ name: 1 });
 
     return NextResponse.json(operators, { status: 200 });
   } catch (error: any) {

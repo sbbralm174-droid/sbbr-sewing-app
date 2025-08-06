@@ -17,6 +17,7 @@ interface IProcess {
 export default function AddOperatorPage() {
   const [operatorId, setOperatorId] = useState('');
   const [name, setName] = useState('');
+  const [operatorDesigation, setOperatorDesigation] = useState('');
   const [contactNumber, setContactNumber] = useState('');
   const [availableMachines, setAvailableMachines] = useState<IMachine[]>([]);
   const [availableProcesses, setAvailableProcesses] = useState<IProcess[]>([]);
@@ -80,7 +81,7 @@ export default function AddOperatorPage() {
     setIsSuccess(false);
     setIsLoading(true);
 
-    if (!operatorId.trim() || !name.trim() || selectedMachineIds.length === 0 || selectedProcessIds.length === 0) {
+    if (!operatorId.trim() || !name.trim() || !operatorDesigation.trim() || selectedMachineIds.length === 0 || selectedProcessIds.length === 0) {
       setMessage('Please fill all required fields and select at least one machine and process.');
       setIsLoading(false);
       return;
@@ -95,6 +96,7 @@ export default function AddOperatorPage() {
         body: JSON.stringify({
           operatorId,
           name,
+          operatorDesigation,
           contactNumber: contactNumber || undefined, // Send undefined if empty
           selectedMachineIds,
           selectedProcessIds,
@@ -109,6 +111,7 @@ export default function AddOperatorPage() {
         // Clear form fields
         setOperatorId('');
         setName('');
+        setOperatorDesigation
         setContactNumber('');
         setSelectedMachineIds([]);
         setSelectedProcessIds([]);
@@ -166,6 +169,21 @@ export default function AddOperatorPage() {
               required
             />
           </div>
+          <div>
+            <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">
+              Operator Designation <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="designation"
+              value={operatorDesigation}
+              onChange={(e) => setOperatorDesigation(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="e.g., Operator"
+              required
+            />
+          </div>
+
         </div>
 
         <div className="mb-4">

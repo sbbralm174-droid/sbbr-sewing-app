@@ -2,7 +2,8 @@
 import mongoose from 'mongoose';
 
 // 1. পরিবেশ ভেরিয়েবল থেকে MongoDB URI নিন
-const MONGODB_URI = process.env.MONGODB_URI;
+//const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = 'mongodb+srv://sewing:Sa01785220401@cluster0.nfzi1fi.mongodb.net/sewing_db?retryWrites=true&w=majority';
 
 // 2. নিশ্চিত করুন URI ডিফাইন করা আছে, অন্যথায় একটি এরর থ্রো করুন
 if (!MONGODB_URI) {

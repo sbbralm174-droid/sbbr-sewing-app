@@ -1,6 +1,6 @@
 // src/app/api/daily-assignments/route.ts
 import { NextResponse } from 'next/server';
-import dbConnect from '../../../lib/mongodb';
+import dbConnect from '@/lib/mongodb';
 import DailyAssignment from '@/models/DailyAssignment';
 import Operator from '@/models/Operator'; // Needed for pre-populating operators
 import SewingLine from '@/models/SewingLine'; // Needed for pre-populating sewing lines

@@ -6,6 +6,7 @@ import { IProcess } from './Process'; // Import Process interface
 // Interface for Operator document
 export interface IOperator extends Document {
   operatorId: string; // Unique ID for the operator, e.g., "OP001"
+  operatorDesigation: string; // Operator Desigation
   name: string;
   contactNumber?: string;
   skills: {
@@ -21,6 +22,7 @@ export interface IOperator extends Document {
 const OperatorSchema: Schema = new Schema(
   {
     operatorId: { type: String, required: true, unique: true },
+    operatorDesigation: { type: String, required: true },
     name: { type: String, required: true },
     contactNumber: { type: String },
     skills: {

@@ -4,7 +4,7 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 // Interface for SewingLine document
 export interface ISewingLine extends Document {
   name: string; // e.g., "Line 1", "Finishing Line A"
-  location?: string; // e.g., "Floor A", "Building 2"
+  floor?: string; // e.g., "Floor A", "Building 2"
   supervisorId?: mongoose.Types.ObjectId; // Optional: Reference to a User/Supervisor
   createdAt: Date;
   updatedAt: Date;
@@ -14,7 +14,7 @@ export interface ISewingLine extends Document {
 const SewingLineSchema: Schema = new Schema(
   {
     name: { type: String, required: true, unique: true },
-    location: { type: String },
+    floor: { type: String },
     // If you plan to have a 'User' model for supervisors later, you can uncomment this:
     // supervisorId: { type: Schema.Types.ObjectId, ref: 'User' },
   },

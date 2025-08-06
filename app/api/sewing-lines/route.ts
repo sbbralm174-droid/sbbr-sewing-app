@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   await dbConnect();
 
   try {
-    const { name, location }: { name: string; location?: string } = await req.json();
+    const { name, floor }: { name: string; floor?: string } = await req.json();
 
     if (!name) {
       return NextResponse.json({ message: 'Sewing line name is required.' }, { status: 400 });
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const newSewingLine = await SewingLine.create({
       name,
-      location,
+      floor,
     });
 
     return NextResponse.json({
