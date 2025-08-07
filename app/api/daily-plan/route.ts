@@ -1,66 +1,67 @@
-// src/app/api/daily-plan/route.ts
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
-import DailyPlan, { OperatorStatus } from '@/models/DailyPlan';
-import Operator from '@/models/Operator';
+import dbConnect from '../../../lib/mongodb'; // Adjust path if necessary
+import DailyPlan from '@/models/DailyPlan'; // Import your new DailyPlan model
 
 export async function POST(req: Request) {
   await dbConnect();
-  try {
-    const body = await req.json();
-    const { date, sewingFloor, sewingLine, operatorId, status, target, assignedProcess, assignedMachine } = body;
 
-    if (!date || !sewingFloor || !sewingLine || !operatorId || !status || target === undefined || !assignedProcess) {
-      return NextResponse.json({ message: 'All required fields must be provided.' }, { status: 400 });
+  try {
+    const {
+      date,
+      operatorId,
+      floor,
+      lineId,
+      machineBrandId,
+      uniqueMachineId,
+      processId,
+      workAs,
+      target,
+    } = await req.json();
+
+    // Basic validation (can be expanded)
+    if (!date || !operatorId || !floor || !lineId || !machineBrandId || !uniqueMachineId || !processId || !workAs || target === undefined || target === null) {
+      return NextResponse.json({ message: 'All fields are required.' }, { status: 400 });
     }
 
-    const newPlan = new DailyPlan({
-      date: new Date(date),
-      sewingFloor,
-      sewingLine,
-      operator: operatorId,
-      status: status as OperatorStatus,
+    const newDailyPlan = await DailyPlan.create({
+      date,
+      operatorId,
+      floor,
+      lineId,
+      machineBrandId,
+      uniqueMachineId,
+      processId,
+      workAs,
       target,
-      assignedProcess,
-      assignedMachine,
     });
 
-    await newPlan.save();
-    return NextResponse.json(newPlan, { status: 201 });
+    return NextResponse.json({
+      message: 'Daily plan saved successfully!',
+      data: newDailyPlan
+    }, { status: 201 });
+
   } catch (error: any) {
-    if (error.code === 11000) {
-      return NextResponse.json({ message: 'A plan for this operator on this date already exists.' }, { status: 409 });
-    }
-    console.error('Error creating daily plan:', error);
-    return NextResponse.json({ message: 'Failed to create daily plan.', error: error.message }, { status: 500 });
+    console.error('Error saving daily plan:', error);
+    return NextResponse.json({ message: 'Failed to save daily plan.', error: error.message }, { status: 500 });
   }
 }
 
+// You can also add a GET function here to fetch daily plans later
+/*
 export async function GET(req: Request) {
   await dbConnect();
   try {
-    const url = new URL(req.url);
-    const date = url.searchParams.get('date');
+    const dailyPlans = await DailyPlan.find({})
+      .populate('operatorId', 'name operatorId operatorDesigation') // Populate operator details
+      .populate('lineId', 'name floor') // Populate line details
+      .populate('machineBrandId', 'name') // Populate machine brand details
+      .populate('processId', 'name') // Populate process details
+      .sort({ date: -1, createdAt: -1 }); // Sort by date descending
 
-    if (!date) {
-      return NextResponse.json({ message: 'Date parameter is required.' }, { status: 400 });
-    }
-
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    const plans = await DailyPlan.find({
-      date: { $gte: startOfDay, $lte: endOfDay },
-    })
-    .populate('operator', 'name operatorId skills') // Populate operator details
-    .populate('assignedMachine', 'uniqueId floor line'); // Populate machine details
-
-    return NextResponse.json(plans, { status: 200 });
+    return NextResponse.json(dailyPlans, { status: 200 });
   } catch (error: any) {
     console.error('Error fetching daily plans:', error);
     return NextResponse.json({ message: 'Failed to fetch daily plans.', error: error.message }, { status: 500 });
   }
 }
+*/

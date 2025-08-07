@@ -6,12 +6,12 @@ import { useState, useEffect } from 'react';
 // Define interfaces for fetched data for better type safety
 interface IMachine {
   _id: string;
-  name: string;
+  machineName: string;
 }
 
 interface IProcess {
   _id: string;
-  name: string;
+  processName: string;
 }
 
 export default function AddOperatorPage() {
@@ -215,7 +215,7 @@ export default function AddOperatorPage() {
             >
               {availableMachines.map((machine) => (
                 <option key={machine._id} value={machine._id}>
-                  {machine.name}
+                  {machine.machineName}
                 </option>
               ))}
             </select>
@@ -236,7 +236,7 @@ export default function AddOperatorPage() {
             >
               {availableProcesses.map((process) => (
                 <option key={process._id} value={process._id}>
-                  {process.name}
+                  {process.processName}
                 </option>
               ))}
             </select>

@@ -107,9 +107,7 @@ export default function OperatorsListPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {operator.contactNumber || 'N/A'}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {operator.skills.machines.map((m) => m.name).join(', ') || 'N/A'}
-                  </td>
+                  
                   <td className="px-6 py-4 text-sm text-gray-900">
                     {operator.skills.processes.map((p) => p.name).join(', ') || 'N/A'}
                   </td>

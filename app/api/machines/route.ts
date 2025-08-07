@@ -1,4 +1,3 @@
-// src/app/api/machines/route.ts
 import { NextResponse } from 'next/server';
 import dbConnect from '../../../lib/mongodb';
 import Machine from '@/models/Machine';
@@ -19,9 +18,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'No valid machine names provided.' }, { status: 400 });
     }
 
-    const newMachines = machineNames.map(name => ({ name }));
+    // এখানে machineName ব্যবহার করা হয়েছে
+    const newMachines = machineNames.map(name => ({ machineName: name }));
 
-    // Insert many documents at once
     const insertedMachines = await Machine.insertMany(newMachines, { ordered: false });
 
     return NextResponse.json({
@@ -31,7 +30,6 @@ export async function POST(req: Request) {
     }, { status: 201 });
 
   } catch (error: any) {
-    // Handle duplicate key errors (if a machine name already exists due to 'unique: true' in schema)
     if (error.code === 11000) {
       return NextResponse.json({ message: 'One or more machine names already exist.' }, { status: 409 });
     }

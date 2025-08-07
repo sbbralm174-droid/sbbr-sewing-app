@@ -1,6 +1,13 @@
+// src/app/sewing-line-form/SewingLineForm.tsx
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+
+// Define interface for Machine data (নতুন যোগ করা হয়েছে)
+interface Machine {
+  _id: string;
+  machineName: string;
+}
 
 // Define interface for Sewing Line data
 interface SewingLine {
@@ -17,14 +24,12 @@ interface Operator {
   operatorId: string;
   name: string;
   operatorDesigation: string;
-  // Other properties if needed
 }
 
 // Define interface for Process data
 interface Process {
   _id: string;
-  name: string;
-  // Other properties if needed
+  processName: string;
 }
 
 // Define interface for Unique Machine data
@@ -32,7 +37,7 @@ interface UniqueMachine {
   _id: string;
   machineType: {
     _id: string;
-    name: string;
+    machineName: string;
   };
   uniqueId: string;
   floor: string;
@@ -47,10 +52,11 @@ const SewingLineForm: React.FC = () => {
   const [sewingLines, setSewingLines] = useState<SewingLine[]>([]);
   const [operators, setOperators] = useState<Operator[]>([]);
   const [processes, setProcesses] = useState<Process[]>([]);
+  const [machines, setMachines] = useState<Machine[]>([]); // নতুন state
   const [uniqueMachines, setUniqueMachines] = useState<UniqueMachine[]>([]);
 
   // State to store selected values for each field
-  const [selectedDate, setSelectedDate] = useState<string>(''); // New: State for date
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedLineId, setSelectedLineId] = useState<string>('');
   const [selectedFloor, setSelectedFloor] = useState<string>('');
   const [selectedOperatorId, setSelectedOperatorId] = useState<string>('');
@@ -118,6 +124,14 @@ const SewingLineForm: React.FC = () => {
         }
         const processesData: Process[] = await processesResponse.json();
         setProcesses(processesData);
+        
+        // Fetch Machine data (নতুন যোগ করা হয়েছে)
+        const machinesResponse = await fetch('/api/machines');
+        if (!machinesResponse.ok) {
+          throw new Error(`Failed to fetch machines: ${machinesResponse.statusText}`);
+        }
+        const machinesData: Machine[] = await machinesResponse.json();
+        setMachines(machinesData);
 
         // Fetch Unique Machine data
         const uniqueMachinesResponse = await fetch('/api/unique-machines');
@@ -135,7 +149,7 @@ const SewingLineForm: React.FC = () => {
     };
 
     fetchData();
-  }, []); // Runs only once when the component mounts
+  }, []);
 
   // Handler to close dropdowns when clicking outside
   useEffect(() => {
@@ -169,47 +183,47 @@ const SewingLineForm: React.FC = () => {
     };
   }, []);
 
-  // Handler for date change (New)
+  // Handler for date change
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(e.target.value);
   };
 
-  // Handlers for select field changes (now called when an option is clicked)
+  // Handlers for select field changes
   const handleLineSelect = (id: string, name: string) => {
     setSelectedLineId(id);
-    setLineSearchTerm(name); // Set input value to selected name
+    setLineSearchTerm(name);
     setIsLineDropdownOpen(false);
   };
 
   const handleFloorSelect = (floor: string) => {
     setSelectedFloor(floor);
-    setFloorSearchTerm(floor); // Set input value to selected floor
+    setFloorSearchTerm(floor);
     setIsFloorDropdownOpen(false);
   };
 
   const handleOperatorSelect = (id: string, name: string, operatorId: string, designation: string) => {
     setSelectedOperatorId(id);
-    setOperatorSearchTerm(`${name} (${operatorId}) - ${designation}`); // Set input value to selected operator info
+    setOperatorSearchTerm(`${name} (${operatorId}) - ${designation}`);
     setIsOperatorDropdownOpen(false);
   };
 
-  const handleProcessSelect = (id: string, name: string) => {
+  const handleProcessSelect = (id: string, processName: string) => {
     setSelectedProcessId(id);
-    setProcessSearchTerm(name); // Set input value to selected name
+    setProcessSearchTerm(processName);
     setIsProcessDropdownOpen(false);
   };
 
-  const handleMachineBrandSelect = (id: string, name: string) => {
+  const handleMachineBrandSelect = (id: string, machineName: string) => {
     setSelectedMachineBrandId(id);
-    setMachineBrandSearchTerm(name); // Set input value to selected name
-    setSelectedUniqueMachineId(''); // Reset unique ID when brand changes
-    setUniqueMachineIdSearchTerm(''); // Reset unique ID search term
+    setMachineBrandSearchTerm(machineName);
+    setSelectedUniqueMachineId('');
+    setUniqueMachineIdSearchTerm('');
     setIsMachineBrandDropdownOpen(false);
   };
 
   const handleUniqueMachineIdSelect = (id: string) => {
     setSelectedUniqueMachineId(id);
-    setUniqueMachineIdSearchTerm(id); // Set input value to selected ID
+    setUniqueMachineIdSearchTerm(id);
     setIsUniqueMachineIdDropdownOpen(false);
   };
 
@@ -223,10 +237,10 @@ const SewingLineForm: React.FC = () => {
     setTargetValue(value === '' ? '' : Number(value));
   };
 
-  // Handlers for search term changes (now also control dropdown visibility)
+  // Handlers for search term changes
   const handleLineSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLineSearchTerm(e.target.value);
-    setIsLineDropdownOpen(true); // Open dropdown when typing
+    setIsLineDropdownOpen(true);
   };
 
   const handleFloorSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -256,32 +270,34 @@ const SewingLineForm: React.FC = () => {
 
   // Filtered data for select options based on search terms
   const filteredSewingLines = sewingLines.filter(line =>
-    line.name.toLowerCase().includes(lineSearchTerm.toLowerCase())
+    line && line.name && line.name.toLowerCase().includes(lineSearchTerm.toLowerCase())
   );
 
   const uniqueFloors = Array.from(new Set(sewingLines.map(line => line.floor)));
   const filteredFloors = uniqueFloors.filter(floor =>
-    floor.toLowerCase().includes(floorSearchTerm.toLowerCase())
+    floor && floor.toLowerCase().includes(floorSearchTerm.toLowerCase())
   );
 
   const filteredOperators = operators.filter(operator =>
-    operator.name.toLowerCase().includes(operatorSearchTerm.toLowerCase()) ||
-    operator.operatorId.toLowerCase().includes(operatorSearchTerm.toLowerCase()) ||
-    operator.operatorDesigation.toLowerCase().includes(operatorSearchTerm.toLowerCase())
+    operator && (
+      (operator.name && operator.name.toLowerCase().includes(operatorSearchTerm.toLowerCase())) ||
+      (operator.operatorId && operator.operatorId.toLowerCase().includes(operatorSearchTerm.toLowerCase())) ||
+      (operator.operatorDesigation && operator.operatorDesigation.toLowerCase().includes(operatorSearchTerm.toLowerCase()))
+    )
   );
 
   const filteredProcesses = processes.filter(process =>
-    process.name.toLowerCase().includes(processSearchTerm.toLowerCase())
+    process && process.processName && process.processName.toLowerCase().includes(processSearchTerm.toLowerCase())
   );
 
-  const uniqueMachineBrands = Array.from(new Map(uniqueMachines.map(item => [item.machineType._id, item.machineType])).values());
-  const filteredMachineBrands = uniqueMachineBrands.filter(brand =>
-    brand.name.toLowerCase().includes(machineBrandSearchTerm.toLowerCase())
+  // Machine ব্র্যান্ডের জন্য নতুন filtering logic (সংশোধিত)
+  const filteredMachines = machines.filter(machine =>
+    machine && machine.machineName && machine.machineName.toLowerCase().includes(machineBrandSearchTerm.toLowerCase())
   );
 
   const filteredUniqueMachineIds = uniqueMachines.filter(machine =>
-    (selectedMachineBrandId ? machine.machineType._id === selectedMachineBrandId : true) &&
-    machine.uniqueId.toLowerCase().includes(uniqueMachineIdSearchTerm.toLowerCase())
+    (selectedMachineBrandId ? machine.machineType?._id === selectedMachineBrandId : true) &&
+    machine && machine.uniqueId && machine.uniqueId.toLowerCase().includes(uniqueMachineIdSearchTerm.toLowerCase())
   );
 
   // Find the full data of the selected operator for display
@@ -426,7 +442,7 @@ const SewingLineForm: React.FC = () => {
             )}
           </div>
 
-          {/* Machine Brand with Searchable Dropdown */}
+          {/* Machine Brand with Searchable Dropdown (সংশোধিত) */}
           <div className="relative" ref={machineBrandRef}>
             <label htmlFor="machineBrand" className="block text-sm font-medium text-gray-900 mb-1">
               Machine Brand
@@ -443,14 +459,14 @@ const SewingLineForm: React.FC = () => {
             />
             {isMachineBrandDropdownOpen && (
               <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
-                {filteredMachineBrands.length > 0 ? (
-                  filteredMachineBrands.map((brand) => (
+                {filteredMachines.length > 0 ? (
+                  filteredMachines.map((machine) => (
                     <div
-                      key={brand._id}
+                      key={machine._id}
                       className="px-3 py-2 cursor-pointer hover:bg-blue-100 text-gray-900"
-                      onClick={() => handleMachineBrandSelect(brand._id, brand.name)}
+                      onClick={() => handleMachineBrandSelect(machine._id, machine.machineName)}
                     >
-                      {brand.name}
+                      {machine.machineName}
                     </div>
                   ))
                 ) : (
@@ -516,9 +532,9 @@ const SewingLineForm: React.FC = () => {
                     <div
                       key={process._id}
                       className="px-3 py-2 cursor-pointer hover:bg-blue-100 text-gray-900"
-                      onClick={() => handleProcessSelect(process._id, process.name)}
+                      onClick={() => handleProcessSelect(process._id, process.processName)}
                     >
-                      {process.name}
+                      {process.processName}
                     </div>
                   ))
                 ) : (
@@ -537,9 +553,9 @@ const SewingLineForm: React.FC = () => {
               type="text"
               id="workAs"
               name="workAs"
-              value={selectedWorkAs} // Use selectedWorkAs as input value
+              value={selectedWorkAs}
               onChange={(e) => {
-                setSelectedWorkAs(e.target.value); // Allow typing to filter
+                setSelectedWorkAs(e.target.value);
                 setIsWorkAsDropdownOpen(true);
               }}
               onFocus={() => setIsWorkAsDropdownOpen(true)}

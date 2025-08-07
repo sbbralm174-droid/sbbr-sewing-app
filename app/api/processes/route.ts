@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'No valid process names provided.' }, { status: 400 });
     }
 
-    const newProcesses = processNames.map(name => ({ name }));
+    const newProcesses = processNames.map(name => ({ processName:name }));
 
     const insertedProcesses = await Process.insertMany(newProcesses, { ordered: false });
 

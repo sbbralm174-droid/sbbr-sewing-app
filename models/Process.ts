@@ -3,7 +3,7 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 
 // Interface for Process document
 export interface IProcess extends Document {
-  name: string;
+  processName: string;
   description?: string;
   category?: string; // e.g., "Sewing", "Assembly", "Finishing"
   createdAt: Date;
@@ -13,7 +13,7 @@ export interface IProcess extends Document {
 // Mongoose Schema for Process
 const ProcessSchema: Schema = new Schema(
   {
-    name: { type: String, required: true, unique: true },
+    processName: { type: String, required: true, unique: true },
     description: { type: String },
     category: { type: String },
   },
